@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        :root {
+            font-family: Inter, Arial, sans-serif;
+            color: #0f172a;
+            background: #f8fafc;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        body { 
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, #d2f0ff 0%, #eff6ff 60%, #e2e8f0 100%);
+        }
+        .weather-card {
+            width: min(460px, 92vw);
+            padding: 32px;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.96);
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.14);
+            text-align: center;
+        }
+        .weather-card h1 {
+            margin: 0 0 10px;
+            font-size: 2.1rem;
+            letter-spacing: -0.03em;
+        }
+        .weather-card p {
+            margin: 0 0 24px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .weather-card input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            margin-bottom: 18px;
+        }
+        .weather-card input:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.16);
+        }
+        .weather-card button {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 14px;
+            background: #0ea5e9;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .weather-card button:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+        .weather-card .temp {
+            margin: 28px 0 10px;
+            font-size: 3rem;
+            font-weight: 700;
+            color: #024b76;
+        }
+        .weather-card .description {
+            margin: 0;
+            color: #475569;
+            font-size: 1rem;
+        }
+        .weather-card .hint {
+            margin-top: 22px;
+            color: #64748b;
+            font-size: 0.94rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="weather-card">
+        <h1>Weather Checker</h1>
+        <p>Type a city name and get the current temperature from OpenWeatherMap.</p>
+        <input type="text" placeholder="Enter city name">
+        <button>Get Weather</button>
+        <div class="temp"></div>
+        <p class="description"></p>
+        <p class="hint">Powered by OpenWeatherMap API</p>
+    </div>
+
+    <script>
+        const input = document.querySelector('input');
+        const result = document.querySelector('.temp');
+        const description = document.querySelector('.description');
+        const button = document.querySelector('button');
+
+        button.addEventListener('click', () => {
+            const cityName = input.value.trim();
+            if (!cityName) {
+                result.textContent = '';
+                description.textContent = 'Please enter a city name.';
+                return;
+            }
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=60fdbb38940c25025b3b218dd7eb1f1f&units=metric`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cod !== 200) {
+                        result.textContent = '';
+                        description.textContent = data.message || 'City not found.';
+                        return;
+                    }
+                    result.textContent = `${Math.round(data.main.temp)}°C`;
+                    description.textContent = `${data.name}, ${data.sys.country} - ${data.weather[0].description}`;
+                })
+                .catch(() => {
+                    result.textContent = '';
+                    description.textContent = 'Unable to fetch weather. Try again later.';
+                });
+        });
+    </script>
+</body>
+</html>
